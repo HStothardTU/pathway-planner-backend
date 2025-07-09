@@ -90,3 +90,73 @@ Repeat for the backend.
 ---
 
 Would you like me to generate the exact terminal commands for your setup, or do you want help with .gitignore files or initial commits? 
+
+Perfect! You already have empty GitHub repositories set up for both the frontend and backend:
+
+- **Frontend:** [https://github.com/HStothardTU/pathway-planner-frontend.git](https://github.com/HStothardTU/pathway-planner-frontend.git)
+- **Backend:** [https://github.com/HStothardTU/pathway-planner-backend.git](https://github.com/HStothardTU/pathway-planner-backend.git)
+
+Here are the exact commands to initialize, commit, and push your local code to these remotes:
+
+---
+
+## **1. Backend: pathway-planner-backend**
+
+From your backend directory (`09072025`):
+
+```bash
+cd /Users/hannahstothard/Rehip/09072025
+git init
+git remote add origin https://github.com/HStothardTU/pathway-planner-backend.git
+git add .
+git commit -m "Initial backend scaffold"
+git branch -M main
+git push -u origin main
+```
+
+---
+
+## **2. Frontend: pathway-planner-frontend**
+
+From your frontend directory (`pathway-planner-frontend`):
+
+```bash
+cd /Users/hannahstothard/Rehip/09072025/pathway-planner-frontend
+git init
+git remote add origin https://github.com/HStothardTU/pathway-planner-frontend.git
+git add .
+git commit -m "Initial Streamlit frontend scaffold"
+git branch -M main
+git push -u origin main
+```
+
+---
+
+## **.gitignore Recommendations**
+
+Before pushing, you may want to add a `.gitignore` file to each repo to avoid committing unnecessary files:
+
+**Backend (`09072025/.gitignore`):**
+```
+__pycache__/
+*.pyc
+.env
+*.sqlite3
+```
+
+**Frontend (`pathway-planner-frontend/.gitignore`):**
+```
+__pycache__/
+*.pyc
+.env
+```
+
+---
+
+After running these commands, your code will be live on GitHub and ready for collaboration or deployment!
+
+If you want, I can generate the `.gitignore` files for you before you push. Let me know if you’d like to proceed with that or need any other help!  
+([Frontend repo link][1], [Backend repo link][2])
+
+[1]: https://github.com/HStothardTU/pathway-planner-frontend.git
+[2]: https://github.com/HStothardTU/pathway-planner-backend.git 
