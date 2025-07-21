@@ -26,14 +26,23 @@ def show():
     )
     
     st.title("⚡ Advanced Calculation Engine")
-    st.markdown("**Week 3-4: Per-vehicle, per-year calculations with real-time aggregation**")
+    st.markdown("**Comprehensive transport decarbonization analysis with per-vehicle, per-year calculations**")
+    
+    # Initialize session state for navigation
+    if 'advanced_calc_page' not in st.session_state:
+        st.session_state.advanced_calc_page = "Overview"
     
     # Sidebar for navigation
     st.sidebar.title("Advanced Calculator")
     page = st.sidebar.selectbox(
         "Choose Section:",
-        ["Overview", "Scenario Calculator", "Real-time Monitoring", "Constraint Analysis", "Performance Metrics"]
+        ["Overview", "Scenario Calculator", "Real-time Monitoring", "Constraint Analysis", "Performance Metrics"],
+        index=["Overview", "Scenario Calculator", "Real-time Monitoring", "Constraint Analysis", "Performance Metrics"].index(st.session_state.advanced_calc_page)
     )
+    
+    # Update session state when sidebar changes
+    if page != st.session_state.advanced_calc_page:
+        st.session_state.advanced_calc_page = page
     
     if page == "Overview":
         show_overview()
@@ -51,47 +60,77 @@ def show_overview():
     
     st.header("🚀 Advanced Calculation Engine Overview")
     
+    # Summary section
+    st.markdown("""
+    ## 📋 **Summary**
+    
+    The Advanced Calculation Engine provides comprehensive transport decarbonization analysis with per-vehicle, 
+    per-year calculations, real-time aggregation, and advanced constraint management. This powerful tool enables 
+    detailed scenario modeling for transport decarbonization pathways with support for 87+ vehicle types, 
+    multi-dimensional calculations, and real-time performance monitoring.
+    
+    ---
+    """)
+    
     col1, col2 = st.columns([2, 1])
     
     with col1:
         st.markdown("""
-        ### **Week 3-4 Implementation Features:**
+        ### **🔧 Core Capabilities**
         
-        #### **🔧 Per-Vehicle, Per-Year Calculation Engine**
-        - **Granular Analysis**: Individual vehicle calculations for each year
-        - **Technology Progression**: Realistic adoption curves and technology evolution
-        - **Multi-dimensional Calculations**: Emissions, costs, energy, infrastructure, health, and economic impacts
+        #### **Per-Vehicle, Per-Year Analysis**
+        - **Granular Calculations**: Individual vehicle analysis for each year
+        - **Technology Evolution**: Realistic adoption curves and progression modeling
+        - **Multi-dimensional Impact**: Emissions, costs, energy, infrastructure, health, and economic analysis
         
-        #### **📊 Real-Time Aggregation System**
-        - **Multi-level Aggregation**: Vehicle → Vehicle Type → Category → Total
-        - **Live Updates**: Real-time progress monitoring and result updates
+        #### **Real-Time Processing**
+        - **Live Aggregation**: Multi-level aggregation with real-time updates
+        - **Progress Monitoring**: Live calculation progress and status updates
         - **Performance Optimization**: Efficient handling of large datasets
         
-        #### **🎯 Constraint Management Framework**
-        - **Technology Readiness**: TRL-based constraint validation
-        - **Market Penetration**: Realistic adoption rate limits
-        - **Infrastructure Capacity**: Infrastructure requirement validation
-        - **Cost Constraints**: Budget and economic feasibility checks
-        - **Policy Constraints**: Regulatory and policy compliance
+        #### **Advanced Constraints**
+        - **Technology Readiness**: TRL-based validation and assessment
+        - **Market Realities**: Realistic adoption rate limits and market penetration
+        - **Infrastructure Planning**: Capacity validation and requirement analysis
+        - **Economic Feasibility**: Cost constraints and budget analysis
+        - **Policy Compliance**: Regulatory and policy constraint validation
         
-        #### **📈 Advanced Analytics**
-        - **Comprehensive Metrics**: 6 calculation types with detailed breakdowns
-        - **Scenario Comparison**: Multi-scenario analysis and comparison
-        - **Risk Assessment**: Constraint violation analysis and mitigation strategies
-        - **Performance Monitoring**: Real-time engine performance metrics
+        #### **Comprehensive Analytics**
+        - **6 Calculation Types**: Emissions, cost, energy, infrastructure, health, economic impacts
+        - **Scenario Comparison**: Multi-scenario analysis and benchmarking
+        - **Risk Assessment**: Constraint violation analysis with mitigation strategies
+        - **Performance Monitoring**: Real-time engine performance and system metrics
         """)
     
     with col2:
-        st.info("**Quick Start:**")
-        st.markdown("""
-        1. **Scenario Calculator**: Create and run advanced scenarios
-        2. **Real-time Monitoring**: Watch calculations in progress
-        3. **Constraint Analysis**: Analyze and validate constraints
-        4. **Performance Metrics**: Monitor engine performance
-        """)
+        st.info("**Quick Start Navigation**")
+        st.markdown("**Click the buttons below to navigate to each section:**")
+        
+        # Navigation buttons
+        col_a, col_b = st.columns(2)
+        
+        with col_a:
+            if st.button("🧮 Scenario Calculator", use_container_width=True):
+                st.session_state.advanced_calc_page = "Scenario Calculator"
+                st.rerun()
+            
+            if st.button("📡 Real-time Monitoring", use_container_width=True):
+                st.session_state.advanced_calc_page = "Real-time Monitoring"
+                st.rerun()
+        
+        with col_b:
+            if st.button("🎯 Constraint Analysis", use_container_width=True):
+                st.session_state.advanced_calc_page = "Constraint Analysis"
+                st.rerun()
+            
+            if st.button("📊 Performance Metrics", use_container_width=True):
+                st.session_state.advanced_calc_page = "Performance Metrics"
+                st.rerun()
+        
+        st.markdown("---")
         
         # Check engine health
-        if st.button("🔍 Check Engine Health"):
+        if st.button("🔍 Check Engine Health", use_container_width=True):
             health_status = check_engine_health()
             if health_status.get('status') == 'healthy':
                 st.success("✅ Advanced Calculation Engine is healthy!")
@@ -102,6 +141,13 @@ def show_overview():
 
 def show_scenario_calculator():
     """Show the advanced scenario calculator"""
+    
+    # Navigation button
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        if st.button("← Back to Overview", use_container_width=True):
+            st.session_state.advanced_calc_page = "Overview"
+            st.rerun()
     
     st.header("🧮 Advanced Scenario Calculator")
     
@@ -299,6 +345,13 @@ def display_advanced_results(result):
 def show_real_time_monitoring():
     """Show real-time monitoring dashboard"""
     
+    # Navigation button
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        if st.button("← Back to Overview", use_container_width=True):
+            st.session_state.advanced_calc_page = "Overview"
+            st.rerun()
+    
     st.header("📡 Real-time Monitoring Dashboard")
     
     # Auto-refresh
@@ -365,6 +418,13 @@ def show_real_time_monitoring():
 def show_constraint_analysis():
     """Show constraint analysis interface"""
     
+    # Navigation button
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        if st.button("← Back to Overview", use_container_width=True):
+            st.session_state.advanced_calc_page = "Overview"
+            st.rerun()
+    
     st.header("🎯 Constraint Analysis")
     
     # Constraint input
@@ -414,6 +474,13 @@ def show_constraint_analysis():
 
 def show_performance_metrics():
     """Show performance metrics dashboard"""
+    
+    # Navigation button
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        if st.button("← Back to Overview", use_container_width=True):
+            st.session_state.advanced_calc_page = "Overview"
+            st.rerun()
     
     st.header("📊 Performance Metrics Dashboard")
     
