@@ -444,11 +444,11 @@ def delete_scenario(scenario_id):
         return False
 
 def show():
-    st.title("Scenario Builder")
-    st.markdown("Create and manage decarbonization scenarios for Teesside transport")
+    # Main header with gradient design
+    st.markdown('<div class="main-header"><h1>Scenario Builder</h1><h3>Create and manage decarbonization scenarios for Teesside transport</h3></div>', unsafe_allow_html=True)
     
     # Enhanced demo scenarios with more vehicle types
-    if st.button("Load Enhanced Demo Scenarios"):
+    if st.button("Load Enhanced Demo Scenarios", key="load_demo"):
         demo_scenarios = [
             {
                 "name": "Conservative Pathway",

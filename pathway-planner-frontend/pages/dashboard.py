@@ -4,11 +4,11 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-API_BASE = "http://localhost:8000/api/v1"
+API_BASE = "http://localhost:8000"
 
 def get_scenarios():
     try:
-        response = requests.get(f"{API_BASE}/scenarios/")
+        response = requests.get(f"{API_BASE}/api/v1/scenarios/")
         if response.status_code == 200:
             return response.json()
     except:
@@ -16,20 +16,20 @@ def get_scenarios():
     return []
 
 def show():
-    st.title("Dashboard")
-    st.markdown("### Teesside Transport Decarbonization Tool")
+    # Main header with gradient design
+    st.markdown('<div class="main-header"><h1>Dashboard</h1><h3>Teesside Transport Decarbonization Tool</h3></div>', unsafe_allow_html=True)
     
-    # Key Metrics Row
+    # Key Metrics Row with gradient cards
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.metric("Total Scenarios", "5", "+2")
+        st.markdown('<div class="metric-card"><h4>Total Scenarios</h4><h2>5</h2><p style="color: #2E8B57;">+2</p></div>', unsafe_allow_html=True)
     with col2:
-        st.metric("Optimized Pathways", "3", "+1")
+        st.markdown('<div class="metric-card"><h4>Optimized Pathways</h4><h2>3</h2><p style="color: #4682B4;">+1</p></div>', unsafe_allow_html=True)
     with col3:
-        st.metric("CO₂ Reduction", "45%", "+12%")
+        st.markdown('<div class="metric-card"><h4>CO₂ Reduction</h4><h2>45%</h2><p style="color: #2E8B57;">+12%</p></div>', unsafe_allow_html=True)
     with col4:
-        st.metric("Cost Savings", "£2.3M", "+£0.5M")
+        st.markdown('<div class="metric-card"><h4>Cost Savings</h4><h2>£2.3M</h2><p style="color: #4682B4;">+£0.5M</p></div>', unsafe_allow_html=True)
     
     st.divider()
     
@@ -58,14 +58,17 @@ def show():
     with col2:
         st.subheader("Quick Actions")
         
-        if st.button("Create New Scenario", use_container_width=True):
-            st.switch_page("pages/scenario_builder.py")
+        if st.button("Create New Scenario", use_container_width=True, key="create_scenario"):
+            st.session_state.navigate_to = "Scenario Builder"
+            st.rerun()
         
-        if st.button("Run Optimization", use_container_width=True):
-            st.switch_page("pages/visualize_pathways.py")
+        if st.button("Run Optimization", use_container_width=True, key="run_optimization"):
+            st.session_state.navigate_to = "Visualize Pathways"
+            st.rerun()
         
-        if st.button("View Reports", use_container_width=True):
-            st.switch_page("pages/reports_export.py")
+        if st.button("View Reports", use_container_width=True, key="view_reports"):
+            st.session_state.navigate_to = "Reports & Export"
+            st.rerun()
     
     st.divider()
     
@@ -77,23 +80,23 @@ def show():
     emissions = [100, 85, 70, 55, 35, 20]  # Decreasing emissions
     costs = [10, 9.5, 9, 8.2, 7.5, 7]  # Decreasing costs
     
-    # Create the chart
+    # Create the chart with green and blue theme
     fig = go.Figure()
     
     fig.add_trace(go.Scatter(
         x=years, y=emissions,
         mode='lines+markers',
         name='CO₂ Emissions (kt)',
-        line=dict(color='red', width=3),
-        marker=dict(size=8)
+        line=dict(color='#2E8B57', width=3),
+        marker=dict(size=8, color='#2E8B57')
     ))
     
     fig.add_trace(go.Scatter(
         x=years, y=[c * 10 for c in costs],  # Scale costs for visibility
         mode='lines+markers',
         name='Cost (£M)',
-        line=dict(color='blue', width=3),
-        marker=dict(size=8),
+        line=dict(color='#4682B4', width=3),
+        marker=dict(size=8, color='#4682B4'),
         yaxis='y2'
     ))
     
@@ -107,12 +110,14 @@ def show():
             side='right'
         ),
         height=400,
-        showlegend=True
+        showlegend=True,
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)'
     )
     
     st.plotly_chart(fig, use_container_width=True)
     
-    # Demo Info
+    # Demo Info with gradient styling
     with st.expander("Demo Information"):
         st.markdown("""
         **This is a demo of the Pathway Planner tool for Teesside Transport Decarbonization.**
