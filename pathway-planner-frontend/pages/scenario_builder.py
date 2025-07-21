@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import json
 import pandas as pd
+import io
 from typing import Dict, List, Any
 
 API_BASE = "http://localhost:8000/api/v1"
@@ -443,9 +444,174 @@ def delete_scenario(scenario_id):
         st.error(f"Error deleting scenario: {e}")
         return False
 
+def validate_excel_data(df: pd.DataFrame) -> Dict[str, Any]:
+    """Validate uploaded Excel data"""
+    errors = []
+    warnings = []
+    
+    # Check required columns
+    required_columns = [
+        'Vehicle_ID', 'Vehicle_Type', 'Vehicle_Category', 'Fuel_Type',
+        'Emissions_Factor_kgCO2e_per_km', 'Technology_Readiness_Level',
+        'Cost_Factor', 'Usage_Intensity'
+    ]
+    
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if missing_columns:
+        errors.append(f"Missing required columns: {', '.join(missing_columns)}")
+    
+    if errors:
+        return {'valid': False, 'errors': errors, 'warnings': warnings}
+    
+    # Check data types and ranges
+    for index, row in df.iterrows():
+        row_num = index + 2  # Excel row number (accounting for header)
+        
+        # Check Vehicle_ID
+        if pd.isna(row['Vehicle_ID']) or str(row['Vehicle_ID']).strip() == '':
+            errors.append(f"Row {row_num}: Vehicle_ID is required")
+        
+        # Check Vehicle_Type
+        if pd.isna(row['Vehicle_Type']) or str(row['Vehicle_Type']).strip() == '':
+            errors.append(f"Row {row_num}: Vehicle_Type is required")
+        
+        # Check Vehicle_Category
+        valid_categories = ['Passenger', 'Public Transport', 'Freight', 'Light Commercial', 'Other']
+        if row['Vehicle_Category'] not in valid_categories:
+            errors.append(f"Row {row_num}: Vehicle_Category must be one of {valid_categories}")
+        
+        # Check Fuel_Type
+        valid_fuels = ['Petrol', 'Diesel', 'Electric', 'Hydrogen', 'Hybrid', 'Other']
+        if row['Fuel_Type'] not in valid_fuels:
+            errors.append(f"Row {row_num}: Fuel_Type must be one of {valid_fuels}")
+        
+        # Check Emissions_Factor
+        if pd.isna(row['Emissions_Factor_kgCO2e_per_km']):
+            errors.append(f"Row {row_num}: Emissions_Factor_kgCO2e_per_km is required")
+        elif not (0 <= row['Emissions_Factor_kgCO2e_per_km'] <= 10):
+            errors.append(f"Row {row_num}: Emissions_Factor_kgCO2e_per_km must be between 0 and 10")
+        
+        # Check Technology_Readiness_Level
+        if pd.isna(row['Technology_Readiness_Level']):
+            errors.append(f"Row {row_num}: Technology_Readiness_Level is required")
+        elif not (1 <= row['Technology_Readiness_Level'] <= 9):
+            errors.append(f"Row {row_num}: Technology_Readiness_Level must be between 1 and 9")
+        
+        # Check Cost_Factor
+        if pd.isna(row['Cost_Factor']):
+            errors.append(f"Row {row_num}: Cost_Factor is required")
+        elif not (0.1 <= row['Cost_Factor'] <= 5):
+            errors.append(f"Row {row_num}: Cost_Factor must be between 0.1 and 5")
+        
+        # Check Usage_Intensity
+        if pd.isna(row['Usage_Intensity']):
+            errors.append(f"Row {row_num}: Usage_Intensity is required")
+        elif not (0 <= row['Usage_Intensity'] <= 1):
+            errors.append(f"Row {row_num}: Usage_Intensity must be between 0 and 1")
+        
+        # Optional field checks
+        if 'Annual_Mileage_km' in df.columns and not pd.isna(row['Annual_Mileage_km']):
+            if row['Annual_Mileage_km'] < 0:
+                warnings.append(f"Row {row_num}: Annual_Mileage_km should be positive")
+        
+        if 'Fleet_Size' in df.columns and not pd.isna(row['Fleet_Size']):
+            if row['Fleet_Size'] < 0:
+                warnings.append(f"Row {row_num}: Fleet_Size should be positive")
+    
+    # Check for duplicate Vehicle_IDs
+    if 'Vehicle_ID' in df.columns:
+        duplicates = df['Vehicle_ID'].duplicated()
+        if duplicates.any():
+            duplicate_ids = df[duplicates]['Vehicle_ID'].tolist()
+            errors.append(f"Duplicate Vehicle_IDs found: {', '.join(map(str, duplicate_ids))}")
+    
+    return {
+        'valid': len(errors) == 0,
+        'errors': errors,
+        'warnings': warnings
+    }
+
 def show():
     # Main header with gradient design
     st.markdown('<div class="main-header"><h1>Scenario Builder</h1><h3>Create and manage decarbonization scenarios for Teesside transport</h3></div>', unsafe_allow_html=True)
+    
+    # Excel Upload Section
+    with st.expander("📊 Upload Fleet Data from Excel", expanded=False):
+        st.markdown("""
+        **Upload your fleet data using our Excel template for AI analysis:**
+        - Download the template below
+        - Fill in your fleet information
+        - Upload the completed file
+        - AI will automatically analyze your data
+        """)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Download template
+            try:
+                with open('data_templates/fleet_data_template.xlsx', 'rb') as f:
+                    st.download_button(
+                        label="📥 Download Excel Template",
+                        data=f.read(),
+                        file_name="fleet_data_template.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        help="Download the Excel template with example data and validation rules"
+                    )
+            except FileNotFoundError:
+                st.error("❌ Template file not found. Please run the template creation script first.")
+        
+        with col2:
+            # Upload Excel file
+            uploaded_file = st.file_uploader(
+                "📤 Upload Completed Excel File",
+                type=['xlsx', 'xls'],
+                help="Upload your completed fleet data Excel file"
+            )
+            
+            if uploaded_file is not None:
+                try:
+                    # Read the Excel file
+                    df = pd.read_excel(uploaded_file, sheet_name="Fleet Data")
+                    
+                    # Validate the data
+                    validation_result = validate_excel_data(df)
+                    
+                    if validation_result['valid']:
+                        st.success("✅ Excel file uploaded successfully!")
+                        
+                        # Store the data in session state
+                        st.session_state['uploaded_fleet_data'] = df.to_dict('records')
+                        st.session_state['fleet_data_uploaded'] = True
+                        
+                        # Show data preview
+                        st.subheader("📋 Uploaded Data Preview")
+                        st.dataframe(df.head(), use_container_width=True)
+                        
+                        # Show summary statistics
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("Vehicle Types", len(df))
+                        with col2:
+                            st.metric("Categories", df['Vehicle_Category'].nunique())
+                        with col3:
+                            st.metric("Fuel Types", df['Fuel_Type'].nunique())
+                        
+                        # Option to use this data for scenario creation
+                        if st.button("🚀 Use This Data for Scenario Creation", type="primary"):
+                            st.session_state['use_uploaded_data'] = True
+                            st.success("✅ Data ready for scenario creation! Go to 'Create Scenario' tab.")
+                            
+                    else:
+                        st.error("❌ Excel file validation failed:")
+                        for error in validation_result['errors']:
+                            st.error(f"- {error}")
+                        for warning in validation_result['warnings']:
+                            st.warning(f"- {warning}")
+                            
+                except Exception as e:
+                    st.error(f"❌ Error reading Excel file: {str(e)}")
+                    st.info("💡 Make sure you're using the correct template format.")
     
     # Enhanced demo scenarios with more vehicle types
     if st.button("Load Enhanced Demo Scenarios", key="load_demo"):
