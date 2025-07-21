@@ -21,7 +21,8 @@ page = st.sidebar.radio(
         "Parameter Editor",
         "Visualize Pathways",
         "Uncertainty Explorer",
-        "Reports & Export"
+        "Reports & Export",
+        "Advanced Calculator"
     )
 )
 
@@ -46,4 +47,7 @@ elif page == "Uncertainty Explorer":
     uncertainty_explorer.show()
 elif page == "Reports & Export":
     from pages import reports_export
-    reports_export.show() 
+    reports_export.show()
+elif page == "Advanced Calculator":
+    from pages import advanced_calculator
+    advanced_calculator.show() 

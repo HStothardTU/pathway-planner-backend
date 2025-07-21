@@ -98,4 +98,64 @@ class ExportRequest(BaseModel):
     format: str = Field(..., pattern="^(csv|pdf|excel)$")
     include_charts: bool = True
     include_summary: bool = True
-    custom_title: Optional[str] = None 
+    custom_title: Optional[str] = None
+
+# Advanced Calculation Engine Schemas (Week 3-4)
+
+class AdvancedScenarioRequest(BaseModel):
+    scenario_id: str
+    years: List[int] = Field(..., min_items=2, description="Years to analyze")
+    vehicle_types: List[str] = Field(..., min_items=1, description="Vehicle types to include")
+    target_reduction: float = Field(..., ge=0, le=1, description="Target emissions reduction (0-1)")
+    constraints: Dict[str, Any] = Field(default_factory=dict, description="Constraint definitions")
+    adoption_rates: Dict[str, Dict[str, float]] = Field(default_factory=dict, description="Adoption rates by vehicle type")
+    calculation_types: List[str] = Field(default=["emissions", "cost", "energy"], description="Types of calculations to perform")
+    aggregation_levels: List[str] = Field(default=["vehicle", "vehicle_type", "total"], description="Aggregation levels")
+    real_time_updates: bool = True
+    store_results: bool = True
+
+class ConstraintAnalysisRequest(BaseModel):
+    scenario_data: Dict[str, Any] = Field(..., description="Scenario data to analyze")
+    constraints: Dict[str, Any] = Field(..., description="Constraints to analyze")
+    analysis_type: str = Field(default="comprehensive", description="Type of analysis to perform")
+
+class PerformanceMetricsRequest(BaseModel):
+    include_cache_metrics: bool = True
+    include_memory_metrics: bool = True
+    include_calculation_metrics: bool = True
+    include_real_time_metrics: bool = True
+
+class ScenarioComparisonRequest(BaseModel):
+    scenario_ids: List[str] = Field(..., min_items=2, description="Scenario IDs to compare")
+    metrics: List[str] = Field(default=["total_emissions", "total_cost"], description="Metrics to compare")
+
+class AdvancedCalculationResult(BaseModel):
+    scenario_id: str
+    calculation_timestamp: str
+    success: bool
+    summary: Dict[str, Any]
+    performance_metrics: Dict[str, Any]
+    constraint_analysis: Dict[str, Any]
+    per_vehicle_results: Optional[Dict[str, Any]] = None
+    per_year_results: Optional[Dict[str, Any]] = None
+    aggregated_results: Optional[Dict[str, Any]] = None
+
+class RealTimeUpdate(BaseModel):
+    scenario_id: str
+    timestamp: str
+    year: int
+    progress: float
+    metrics: Dict[str, Any]
+
+class ConstraintViolation(BaseModel):
+    year: int
+    vehicle_type: str
+    constraint_type: str
+    violation_description: str
+    severity: str = Field(..., pattern="^(low|medium|high|critical)$")
+
+class AggregationResult(BaseModel):
+    scenario_id: str
+    aggregation_level: str
+    calculation_type: str
+    results: Dict[str, Any] 

@@ -8,6 +8,7 @@ from app.db.session import get_db
 from app.db.models import Scenario
 from app.services.optimizer import optimize_transport_pathway
 from app.services.scenario import validate_scenario_parameters
+from app.services.advanced_calculator import AdvancedCalculationEngine, CalculationType, AggregationLevel
 from . import schemas
 
 router = APIRouter()
@@ -583,4 +584,80 @@ def export_scenario_pdf(scenario_id: int, db: Session = Depends(get_db)):
         "message": "PDF export functionality coming in Week 2",
         "scenario_id": scenario_id,
         "scenario_name": scenario.name
-    } 
+    }
+
+# Advanced Calculation Engine Endpoints (Week 3-4)
+
+# Initialize the advanced calculation engine
+advanced_engine = AdvancedCalculationEngine({
+    'max_workers': 4,
+    'cache_enabled': True,
+    'real_time_updates': True
+})
+
+@router.post("/advanced/calculate")
+def calculate_advanced_scenario(request: schemas.AdvancedScenarioRequest, db: Session = Depends(get_db)):
+    """Calculate advanced transport decarbonization scenario with per-vehicle, per-year analysis"""
+    try:
+        # Prepare scenario data
+        scenario_data = {
+            'scenario_id': request.scenario_id,
+            'years': request.years,
+            'vehicle_types': request.vehicle_types,
+            'target_reduction': request.target_reduction,
+            'constraints': request.constraints,
+            'adoption_rates': request.adoption_rates,
+            'calculation_types': request.calculation_types,
+            'aggregation_levels': request.aggregation_levels,
+            'real_time_updates': request.real_time_updates
+        }
+        
+        # Run calculation
+        result = advanced_engine.calculate_scenario(scenario_data)
+        
+        if not result['success']:
+            raise HTTPException(status_code=400, detail=result['message'])
+        
+        return {
+            'success': True,
+            'scenario_id': result['results']['scenario_id'],
+            'calculation_timestamp': result['results']['calculation_timestamp'],
+            'summary': result['results']['aggregated_results']['scenario_summary'],
+            'performance_metrics': result['results']['performance_metrics'],
+            'constraint_analysis': result['results']['constraint_analysis']
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Advanced calculation failed: {str(e)}")
+
+@router.get("/advanced/health")
+def advanced_health_check():
+    """Health check for advanced calculation engine"""
+    try:
+        health_status = {
+            'status': 'healthy',
+            'engine_version': '1.0.0',
+            'features': {
+                'per_vehicle_calculations': True,
+                'per_year_calculations': True,
+                'real_time_aggregation': True,
+                'constraint_management': True,
+                'advanced_optimization': True
+            },
+            'performance': {
+                'cache_enabled': advanced_engine.cache_enabled,
+                'real_time_updates': advanced_engine.real_time_updates,
+                'max_workers': advanced_engine.max_workers
+            },
+            'constraints_supported': list(advanced_engine.constraint_manager.constraint_types.keys()),
+            'aggregation_levels': [level.value for level in AggregationLevel],
+            'calculation_types': [calc_type.value for calc_type in CalculationType]
+        }
+        
+        return health_status
+        
+    except Exception as e:
+        return {
+            'status': 'unhealthy',
+            'error': str(e)
+        } 
