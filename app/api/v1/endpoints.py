@@ -9,6 +9,8 @@ from app.db.models import Scenario
 from app.services.optimizer import optimize_transport_pathway
 from app.services.scenario import validate_scenario_parameters
 from app.services.advanced_calculator import AdvancedCalculationEngine, CalculationType, AggregationLevel
+from app.ml.clustering import FleetClusterer
+from app.ml.data_preprocessing import DataPreprocessor
 from . import schemas
 
 router = APIRouter()
@@ -660,4 +662,52 @@ def advanced_health_check():
         return {
             'status': 'unhealthy',
             'error': str(e)
-        } 
+        }
+
+@router.post("/ml/cluster-fleets", response_model=schemas.ClusteringResult)
+def cluster_fleets(request: schemas.ClusteringRequest, db: Session = Depends(get_db)):
+    """Cluster vehicle fleets based on characteristics"""
+    
+    try:
+        # Get all scenarios
+        scenarios = db.query(Scenario).all()
+        scenarios_data = [scenario.__dict__ for scenario in scenarios]
+        
+        # Preprocess data
+        preprocessor = DataPreprocessor()
+        fleet_data = preprocessor.prepare_fleet_data(scenarios_data)
+        fleet_data = preprocessor.encode_categorical_features(fleet_data)
+        
+        # Cluster fleets
+        clusterer = FleetClusterer()
+        
+        if request.method == 'kmeans':
+            results = clusterer.cluster_fleets_kmeans(fleet_data, request.n_clusters)
+        elif request.method == 'dbscan':
+            results = clusterer.cluster_fleets_dbscan(fleet_data, request.eps, request.min_samples)
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported clustering method")
+        
+        # Generate recommendations
+        recommendations = clusterer.get_cluster_recommendations(results['cluster_analysis'])
+        
+        # Prepare visualization data
+        viz_data = {
+            'x': results['pca_components'][:, 0].tolist(),
+            'y': results['pca_components'][:, 1].tolist(),
+            'clusters': results['clusters'].tolist(),
+            'labels': results['cluster_labels']
+        }
+        
+        return schemas.ClusteringResult(
+            clusters=results['clusters'].tolist(),
+            cluster_labels=results['cluster_labels'],
+            silhouette_score=results.get('silhouette_score'),
+            calinski_score=results.get('calinski_score'),
+            cluster_analysis=results['cluster_analysis'],
+            recommendations=recommendations,
+            visualization_data=viz_data
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Clustering failed: {str(e)}") 

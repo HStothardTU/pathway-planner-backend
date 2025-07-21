@@ -71,7 +71,8 @@ else:
             "Uncertainty Explorer",
             "Reports & Export",
             "Advanced Calculator",
-            "Analysis & Insights"
+            "Analysis & Insights",
+            "AI Insights"
         )
     )
 
@@ -102,4 +103,7 @@ elif page == "Advanced Calculator":
     advanced_calculator.show()
 elif page == "Analysis & Insights":
     from pages import analysis_insights
-    analysis_insights.show() 
+    analysis_insights.show()
+elif page == "AI Insights":
+    from pages import ai_insights
+    ai_insights.show() 

@@ -158,4 +158,20 @@ class AggregationResult(BaseModel):
     scenario_id: str
     aggregation_level: str
     calculation_type: str
-    results: Dict[str, Any] 
+    results: Dict[str, Any]
+
+# ML Schemas
+class ClusteringRequest(BaseModel):
+    method: str = Field(..., description="Clustering method: 'kmeans', 'dbscan', 'hierarchical'")
+    n_clusters: Optional[int] = Field(4, description="Number of clusters for K-Means")
+    eps: Optional[float] = Field(0.5, description="Epsilon for DBSCAN")
+    min_samples: Optional[int] = Field(5, description="Min samples for DBSCAN")
+
+class ClusteringResult(BaseModel):
+    clusters: List[int]
+    cluster_labels: List[str]
+    silhouette_score: Optional[float]
+    calinski_score: Optional[float]
+    cluster_analysis: Dict[str, Any]
+    recommendations: List[Dict[str, Any]]
+    visualization_data: Dict[str, Any] 
