@@ -89,9 +89,7 @@ Repeat for the backend.
 
 ---
 
-Would you like me to generate the exact terminal commands for your setup, or do you want help with .gitignore files or initial commits? 
 
-Perfect! You already have empty GitHub repositories set up for both the frontend and backend:
 
 - **Frontend:** [https://github.com/HStothardTU/pathway-planner-frontend.git](https://github.com/HStothardTU/pathway-planner-frontend.git)
 - **Backend:** [https://github.com/HStothardTU/pathway-planner-backend.git](https://github.com/HStothardTU/pathway-planner-backend.git)
@@ -153,10 +151,113 @@ __pycache__/
 
 ---
 
-After running these commands, your code will be live on GitHub and ready for collaboration or deployment!
-
-If you want, I can generate the `.gitignore` files for you before you push. Let me know if you’d like to proceed with that or need any other help!  
+ 
 ([Frontend repo link][1], [Backend repo link][2])
 
 [1]: https://github.com/HStothardTU/pathway-planner-frontend.git
 [2]: https://github.com/HStothardTU/pathway-planner-backend.git 
+
+---
+
+To connect your Streamlit frontend to the scenario management endpoints, you’ll use the `requests` library to interact with your FastAPI backend. Here’s how you can do it step by step:
+
+---
+
+## 1. **Set Up API URL**
+
+Add a variable in your frontend code for the backend API base URL:
+```python
+API_BASE = "http://localhost:8000/api/v1"
+```
+
+---
+
+## 2. **Example Functions for Scenario CRUD**
+
+Add these helper functions to your frontend (e.g., in a new `utils/api.py` file or directly in your page):
+
+```python
+import requests
+
+API_BASE = "http://localhost:8000/api/v1"
+
+def list_scenarios():
+    response = requests.get(f"{API_BASE}/scenarios/")
+    response.raise_for_status()
+    return response.json()
+
+def get_scenario(scenario_id):
+    response = requests.get(f"{API_BASE}/scenarios/{scenario_id}")
+    response.raise_for_status()
+    return response.json()
+
+def create_scenario(data):
+    response = requests.post(f"{API_BASE}/scenarios/", json=data)
+    response.raise_for_status()
+    return response.json()
+
+def update_scenario(scenario_id, data):
+    response = requests.put(f"{API_BASE}/scenarios/{scenario_id}", json=data)
+    response.raise_for_status()
+    return response.json()
+
+def delete_scenario(scenario_id):
+    response = requests.delete(f"{API_BASE}/scenarios/{scenario_id}")
+    response.raise_for_status()
+    return response.status_code == 204
+```
+
+---
+
+## 3. **Integrate with Streamlit UI**
+
+For example, in your `pages/scenario_builder.py`:
+
+```python
+import streamlit as st
+from utils.api import list_scenarios, create_scenario, update_scenario, delete_scenario
+
+def show():
+    st.title("Scenario Builder")
+
+    # List scenarios
+    scenarios = list_scenarios()
+    scenario_names = [s["name"] for s in scenarios]
+    selected = st.selectbox("Select a scenario", scenario_names)
+
+    # Show details
+    scenario = next((s for s in scenarios if s["name"] == selected), None)
+    if scenario:
+        st.write("Description:", scenario.get("description", ""))
+        st.write("Tags:", scenario.get("tags", ""))
+        st.write("Parameters:", scenario.get("parameters", {}))
+
+    # Create new scenario
+    with st.expander("Create new scenario"):
+        name = st.text_input("Name")
+        description = st.text_area("Description")
+        tags = st.text_input("Tags")
+        if st.button("Create"):
+            data = {"name": name, "description": description, "tags": tags, "parameters": {}}
+            create_scenario(data)
+            st.success("Scenario created!")
+            st.experimental_rerun()
+
+    # Delete scenario
+    if scenario and st.button("Delete this scenario"):
+        delete_scenario(scenario["id"])
+        st.success("Scenario deleted!")
+        st.experimental_rerun()
+```
+
+---
+
+## 4. **Next Steps**
+
+- Expand the UI to allow editing/updating scenarios.
+- Add error handling and user feedback.
+- Optionally, cache or refresh scenario lists after changes.
+
+---
+
+**Would you like me to update your `scenario_builder.py` with a basic version of this, or help you build a more advanced scenario management UI?** 

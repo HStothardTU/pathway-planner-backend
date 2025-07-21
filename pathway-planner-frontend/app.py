@@ -1,13 +1,23 @@
 import streamlit as st
 import os
 
+# Configure page
+st.set_page_config(
+    page_title="Pathway Planner",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 # Sidebar navigation
 st.sidebar.title("Pathway Planner")
+st.sidebar.markdown("---")
+
 page = st.sidebar.radio(
-    "Go to",
+    "Navigation",
     (
-        "Dashboard Overview",
-        "Scenario Builder",
+        "Dashboard",
+        "Scenario Builder", 
         "Parameter Editor",
         "Visualize Pathways",
         "Uncertainty Explorer",
@@ -15,8 +25,11 @@ page = st.sidebar.radio(
     )
 )
 
+st.sidebar.markdown("---")
+st.sidebar.markdown("**Teesside Transport Decarbonization Tool**")
+
 # Page routing
-if page == "Dashboard Overview":
+if page == "Dashboard":
     from pages import dashboard
     dashboard.show()
 elif page == "Scenario Builder":

@@ -1,5 +1,135 @@
 import streamlit as st
+import requests
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+
+API_BASE = "http://localhost:8000/api/v1"
+
+def get_scenarios():
+    try:
+        response = requests.get(f"{API_BASE}/scenarios/")
+        if response.status_code == 200:
+            return response.json()
+    except:
+        return []
+    return []
 
 def show():
-    st.title("Dashboard Overview")
-    st.write("Key metrics and visual summary will appear here.") 
+    st.title("Dashboard")
+    st.markdown("### Teesside Transport Decarbonization Tool")
+    
+    # Key Metrics Row
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Total Scenarios", "5", "+2")
+    with col2:
+        st.metric("Optimized Pathways", "3", "+1")
+    with col3:
+        st.metric("CO₂ Reduction", "45%", "+12%")
+    with col4:
+        st.metric("Cost Savings", "£2.3M", "+£0.5M")
+    
+    st.divider()
+    
+    # Recent Activity and Quick Actions
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.subheader("Recent Scenarios")
+        scenarios = get_scenarios()
+        
+        if scenarios:
+            # Create a simple table of recent scenarios
+            scenario_data = []
+            for scenario in scenarios[-5:]:  # Show last 5
+                scenario_data.append({
+                    "Name": scenario.get("name", "Unknown"),
+                    "Description": scenario.get("description", "No description")[:50] + "...",
+                    "Status": "Optimized" if scenario.get("parameters") else "Pending"
+                })
+            
+            df = pd.DataFrame(scenario_data)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+        else:
+            st.info("No scenarios found. Create your first scenario in the Scenario Builder.")
+    
+    with col2:
+        st.subheader("Quick Actions")
+        
+        if st.button("Create New Scenario", use_container_width=True):
+            st.switch_page("pages/scenario_builder.py")
+        
+        if st.button("Run Optimization", use_container_width=True):
+            st.switch_page("pages/visualize_pathways.py")
+        
+        if st.button("View Reports", use_container_width=True):
+            st.switch_page("pages/reports_export.py")
+    
+    st.divider()
+    
+    # Sample Chart for Demo
+    st.subheader("Sample Pathway Visualization")
+    
+    # Create sample data for demo
+    years = [2025, 2030, 2035, 2040, 2045, 2050]
+    emissions = [100, 85, 70, 55, 35, 20]  # Decreasing emissions
+    costs = [10, 9.5, 9, 8.2, 7.5, 7]  # Decreasing costs
+    
+    # Create the chart
+    fig = go.Figure()
+    
+    fig.add_trace(go.Scatter(
+        x=years, y=emissions,
+        mode='lines+markers',
+        name='CO₂ Emissions (kt)',
+        line=dict(color='red', width=3),
+        marker=dict(size=8)
+    ))
+    
+    fig.add_trace(go.Scatter(
+        x=years, y=[c * 10 for c in costs],  # Scale costs for visibility
+        mode='lines+markers',
+        name='Cost (£M)',
+        line=dict(color='blue', width=3),
+        marker=dict(size=8),
+        yaxis='y2'
+    ))
+    
+    fig.update_layout(
+        title="Sample Decarbonization Pathway",
+        xaxis_title="Year",
+        yaxis_title="CO₂ Emissions (kt)",
+        yaxis2=dict(
+            title="Cost (£M)",
+            overlaying='y',
+            side='right'
+        ),
+        height=400,
+        showlegend=True
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Demo Info
+    with st.expander("Demo Information"):
+        st.markdown("""
+        **This is a demo of the Pathway Planner tool for Teesside Transport Decarbonization.**
+        
+        **Key Features:**
+        - **Scenario Builder**: Create and manage different decarbonization scenarios
+        - **Optimization Engine**: Find optimal fuel mix pathways
+        - **Visualization**: Interactive charts and pathway analysis
+        - **Reporting**: Export results in CSV and PDF formats
+        
+        **Next Steps:**
+        1. Create a scenario in Scenario Builder
+        2. Run optimization in Visualize Pathways
+        3. Export results and reports
+        
+        **Technical Stack:**
+        - Backend: FastAPI + SQLAlchemy + PostgreSQL
+        - Frontend: Streamlit + Plotly
+        - Optimization: Linear programming solver
+        """) 
