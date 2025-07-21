@@ -5,8 +5,8 @@ import pandas as pd
 import numpy as np
 
 def show():
-    st.title("Uncertainty Explorer")
-    st.markdown("Explore data gaps and uncertainty in transport decarbonization")
+    # Main header with gradient design
+    st.markdown('<div class="main-header"><h1>Uncertainty Explorer</h1><h3>Explore data gaps and uncertainty in transport decarbonization</h3></div>', unsafe_allow_html=True)
     
     # Uncertainty Analysis
     st.subheader("Emissions Uncertainty Analysis")
@@ -16,7 +16,7 @@ def show():
     base_emissions = [0.065, 0.250, 0.325, 0.120]  # Electric vehicle emissions
     uncertainty_ranges = [0.02, 0.05, 0.08, 0.03]  # Uncertainty ranges
     
-    # Create uncertainty visualization
+    # Create uncertainty visualization with green and blue theme
     fig = go.Figure()
     
     for i, vehicle in enumerate(vehicle_types):
@@ -28,7 +28,7 @@ def show():
             x=[vehicle, vehicle],
             y=[base - uncertainty, base + uncertainty],
             mode='lines',
-            line=dict(color='gray', width=8),
+            line=dict(color='#4682B4', width=8),
             name=f'{vehicle} Range',
             showlegend=False
         ))
@@ -38,7 +38,7 @@ def show():
             x=[vehicle],
             y=[base],
             mode='markers',
-            marker=dict(size=12, color='blue'),
+            marker=dict(size=12, color='#2E8B57'),
             name=f'{vehicle} Estimate',
             showlegend=False
         ))
@@ -48,7 +48,9 @@ def show():
         xaxis_title="Vehicle Type",
         yaxis_title="Emissions (kg CO₂e/km)",
         height=400,
-        showlegend=False
+        showlegend=False,
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)'
     )
     
     st.plotly_chart(fig, use_container_width=True)
@@ -71,7 +73,8 @@ def show():
             x=data_sources,
             y=completeness,
             title="Data Completeness by Source (%)",
-            labels={'x': 'Data Source', 'y': 'Completeness (%)'}
+            labels={'x': 'Data Source', 'y': 'Completeness (%)'},
+            color_discrete_sequence=['#2E8B57']
         )
         st.plotly_chart(fig, use_container_width=True)
     
@@ -86,7 +89,8 @@ def show():
             x=parameters,
             y=confidence,
             title="Confidence Levels (%)",
-            labels={'x': 'Parameter', 'y': 'Confidence (%)'}
+            labels={'x': 'Parameter', 'y': 'Confidence (%)'},
+            color_discrete_sequence=['#4682B4']
         )
         st.plotly_chart(fig, use_container_width=True)
     

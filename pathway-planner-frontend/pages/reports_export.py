@@ -16,8 +16,8 @@ def get_scenarios():
     return []
 
 def show():
-    st.title("Reports & Export")
-    st.markdown("Generate and export comprehensive decarbonization reports")
+    # Main header with gradient design
+    st.markdown('<div class="main-header"><h1>Reports & Export</h1><h3>Generate and export comprehensive decarbonization reports</h3></div>', unsafe_allow_html=True)
     
     # Report Generation
     st.subheader("Generate Report")
@@ -83,17 +83,32 @@ def show():
                 if include_charts:
                     st.markdown("### Technical Analysis")
                     
-                    # Sample chart
+                    # Sample chart with green and blue theme
                     years = [2025, 2030, 2035, 2040, 2045, 2050]
                     emissions = [100, 85, 70, 55, 35, 20]
                     costs = [10, 9.5, 9, 8.2, 7.5, 7]
                     
                     fig = go.Figure()
-                    fig.add_trace(go.Scatter(x=years, y=emissions, name='Emissions (kt)'))
-                    fig.add_trace(go.Scatter(x=years, y=[c*10 for c in costs], name='Cost (£M)', yaxis='y2'))
+                    fig.add_trace(go.Scatter(
+                        x=years, 
+                        y=emissions, 
+                        name='Emissions (kt)',
+                        line=dict(color='#2E8B57', width=3),
+                        marker=dict(color='#2E8B57', size=8)
+                    ))
+                    fig.add_trace(go.Scatter(
+                        x=years, 
+                        y=[c*10 for c in costs], 
+                        name='Cost (£M)', 
+                        yaxis='y2',
+                        line=dict(color='#4682B4', width=3),
+                        marker=dict(color='#4682B4', size=8)
+                    ))
                     fig.update_layout(
                         title="Emissions and Cost Projections",
-                        yaxis2=dict(overlaying='y', side='right')
+                        yaxis2=dict(overlaying='y', side='right'),
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)'
                     )
                     st.plotly_chart(fig, use_container_width=True)
                 

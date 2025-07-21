@@ -19,21 +19,15 @@ API_BASE = "http://localhost:8000/api/v1"
 def show():
     """Main function to display the advanced calculation engine page"""
     
-    st.set_page_config(
-        page_title="Advanced Calculation Engine",
-        page_icon="⚡",
-        layout="wide"
-    )
-    
-    st.title("⚡ Advanced Calculation Engine")
-    st.markdown("**Comprehensive transport decarbonization analysis with per-vehicle, per-year calculations**")
+    # Main header with gradient design
+    st.markdown('<div class="main-header"><h1>Advanced Calculation Engine</h1><h3>Comprehensive transport decarbonization analysis with per-vehicle, per-year calculations</h3></div>', unsafe_allow_html=True)
     
     # Initialize session state for navigation
     if 'advanced_calc_page' not in st.session_state:
         st.session_state.advanced_calc_page = "Overview"
     
     # Sidebar for navigation
-    st.sidebar.title("Advanced Calculator")
+    st.sidebar.markdown('<div class="sidebar-header">Advanced Calculator</div>', unsafe_allow_html=True)
     page = st.sidebar.selectbox(
         "Choose Section:",
         ["Overview", "Scenario Calculator", "Real-time Monitoring", "Constraint Analysis", "Performance Metrics"],
@@ -58,11 +52,11 @@ def show():
 def show_overview():
     """Show overview of the advanced calculation engine"""
     
-    st.header("🚀 Advanced Calculation Engine Overview")
+    st.markdown('<div class="main-header"><h2>Advanced Calculation Engine Overview</h2></div>', unsafe_allow_html=True)
     
     # Summary section
     st.markdown("""
-    ## 📋 **Summary**
+    ## Summary
     
     The Advanced Calculation Engine provides comprehensive transport decarbonization analysis with per-vehicle, 
     per-year calculations, real-time aggregation, and advanced constraint management. This powerful tool enables 
@@ -76,26 +70,26 @@ def show_overview():
     
     with col1:
         st.markdown("""
-        ### **🔧 Core Capabilities**
+        ### Core Capabilities
         
-        #### **Per-Vehicle, Per-Year Analysis**
+        #### Per-Vehicle, Per-Year Analysis
         - **Granular Calculations**: Individual vehicle analysis for each year
         - **Technology Evolution**: Realistic adoption curves and progression modeling
         - **Multi-dimensional Impact**: Emissions, costs, energy, infrastructure, health, and economic analysis
         
-        #### **Real-Time Processing**
+        #### Real-Time Processing
         - **Live Aggregation**: Multi-level aggregation with real-time updates
         - **Progress Monitoring**: Live calculation progress and status updates
         - **Performance Optimization**: Efficient handling of large datasets
         
-        #### **Advanced Constraints**
+        #### Advanced Constraints
         - **Technology Readiness**: TRL-based validation and assessment
         - **Market Realities**: Realistic adoption rate limits and market penetration
         - **Infrastructure Planning**: Capacity validation and requirement analysis
         - **Economic Feasibility**: Cost constraints and budget analysis
         - **Policy Compliance**: Regulatory and policy constraint validation
         
-        #### **Comprehensive Analytics**
+        #### Comprehensive Analytics
         - **6 Calculation Types**: Emissions, cost, energy, infrastructure, health, economic impacts
         - **Scenario Comparison**: Multi-scenario analysis and benchmarking
         - **Risk Assessment**: Constraint violation analysis with mitigation strategies
@@ -103,40 +97,40 @@ def show_overview():
         """)
     
     with col2:
-        st.info("**Quick Start Navigation**")
+        st.markdown('<div class="sidebar-header">Quick Start Navigation</div>', unsafe_allow_html=True)
         st.markdown("**Click the buttons below to navigate to each section:**")
-        
+
         # Navigation buttons
         col_a, col_b = st.columns(2)
-        
+
         with col_a:
-            if st.button("🧮 Scenario Calculator", use_container_width=True):
+            if st.button("Scenario Calculator", use_container_width=True, key="nav_scenario"):
                 st.session_state.advanced_calc_page = "Scenario Calculator"
                 st.rerun()
-            
-            if st.button("📡 Real-time Monitoring", use_container_width=True):
+
+            if st.button("Real-time Monitoring", use_container_width=True, key="nav_monitoring"):
                 st.session_state.advanced_calc_page = "Real-time Monitoring"
                 st.rerun()
-        
+
         with col_b:
-            if st.button("🎯 Constraint Analysis", use_container_width=True):
+            if st.button("Constraint Analysis", use_container_width=True, key="nav_constraint"):
                 st.session_state.advanced_calc_page = "Constraint Analysis"
                 st.rerun()
-            
-            if st.button("📊 Performance Metrics", use_container_width=True):
+
+            if st.button("Performance Metrics", use_container_width=True, key="nav_performance"):
                 st.session_state.advanced_calc_page = "Performance Metrics"
                 st.rerun()
-        
+
         st.markdown("---")
-        
+
         # Check engine health
-        if st.button("🔍 Check Engine Health", use_container_width=True):
+        if st.button("Check Engine Health", use_container_width=True, key="health_check"):
             health_status = check_engine_health()
             if health_status.get('status') == 'healthy':
-                st.success("✅ Advanced Calculation Engine is healthy!")
+                st.success("Advanced Calculation Engine is healthy!")
                 st.json(health_status)
             else:
-                st.error("❌ Engine health check failed")
+                st.error("Engine health check failed")
                 st.json(health_status)
 
 def show_scenario_calculator():
@@ -149,7 +143,7 @@ def show_scenario_calculator():
             st.session_state.advanced_calc_page = "Overview"
             st.rerun()
     
-    st.header("🧮 Advanced Scenario Calculator")
+    st.markdown('<div class="main-header"><h2>Advanced Scenario Calculator</h2></div>', unsafe_allow_html=True)
     
     # Scenario configuration
     with st.expander("📋 Scenario Configuration", expanded=True):
@@ -289,7 +283,7 @@ def show_scenario_calculator():
 def display_advanced_results(result):
     """Display advanced calculation results"""
     
-    st.header("📊 Advanced Calculation Results")
+    st.markdown('<div class="main-header"><h2>Advanced Calculation Results</h2></div>', unsafe_allow_html=True)
     
     # Summary metrics
     col1, col2, col3, col4 = st.columns(4)
@@ -352,7 +346,7 @@ def show_real_time_monitoring():
             st.session_state.advanced_calc_page = "Overview"
             st.rerun()
     
-    st.header("📡 Real-time Monitoring Dashboard")
+    st.markdown('<div class="main-header"><h2>Real-time Monitoring Dashboard</h2></div>', unsafe_allow_html=True)
     
     # Auto-refresh
     auto_refresh = st.checkbox("Enable Auto-refresh", value=True)
@@ -425,7 +419,7 @@ def show_constraint_analysis():
             st.session_state.advanced_calc_page = "Overview"
             st.rerun()
     
-    st.header("🎯 Constraint Analysis")
+    st.markdown('<div class="main-header"><h2>Constraint Analysis</h2></div>', unsafe_allow_html=True)
     
     # Constraint input
     with st.expander("📋 Constraint Configuration", expanded=True):
@@ -482,7 +476,7 @@ def show_performance_metrics():
             st.session_state.advanced_calc_page = "Overview"
             st.rerun()
     
-    st.header("📊 Performance Metrics Dashboard")
+    st.markdown('<div class="main-header"><h2>Performance Metrics Dashboard</h2></div>', unsafe_allow_html=True)
     
     # Get performance metrics
     if st.button("🔄 Refresh Metrics"):

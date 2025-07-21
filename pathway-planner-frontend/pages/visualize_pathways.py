@@ -36,8 +36,8 @@ def run_optimization(scenario_id: int, include_usage_patterns: bool = True, enab
         return None
 
 def show():
-    st.title("Visualize Pathways")
-    st.markdown("Run optimization and visualize decarbonization pathways")
+    # Main header with gradient design
+    st.markdown('<div class="main-header"><h1>Visualize Pathways</h1><h3>Run optimization and visualize decarbonization pathways</h3></div>', unsafe_allow_html=True)
     
     # Get selected scenario
     selected_id = st.session_state.get("selected_scenario_id")

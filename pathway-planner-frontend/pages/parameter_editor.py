@@ -1,8 +1,8 @@
 import streamlit as st
 
 def show():
-    st.title("Parameter Editor")
-    st.markdown("Edit parameters for vehicles, technology, and constraints")
+    # Main header with gradient design
+    st.markdown('<div class="main-header"><h1>Parameter Editor</h1><h3>Edit parameters for vehicles, technology, and constraints</h3></div>', unsafe_allow_html=True)
     
     # Vehicle Parameters
     st.subheader("Vehicle Parameters")
